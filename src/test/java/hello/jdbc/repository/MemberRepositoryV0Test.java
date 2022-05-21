@@ -6,6 +6,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
+import java.util.NoSuchElementException;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -17,6 +18,8 @@ class MemberRepositoryV0Test {
 
     @Test
     void crud() throws SQLException {
+
+        // save
         Member member = new Member("memberV0", 10000);
         repository.save(member);
 
@@ -24,5 +27,16 @@ class MemberRepositoryV0Test {
         Member findMember = repository.findById(member.getMemberId());
         log.info("findMember={}", findMember);
         assertThat(findMember).isEqualTo(member);
+
+        //update
+        repository.update(member.getMemberId(), 20000);
+        Member updatedMember = repository.findById(member.getMemberId());
+        assertThat(updatedMember.getMoney()).isEqualTo(20000);
+
+        //delete
+        repository.delete(member.getMemberId());
+        assertThatThrownBy(() -> repository.findById(member.getMemberId()))
+                .isInstanceOf(NoSuchElementException.class);
+        // 지웠기 때문에 조회가 되면 안됨 -> 예외가 발생했는지를 검증
     }
 }
